@@ -43,17 +43,17 @@ public final class Pearload {
 
     public void onEntityLeave(@NotNull EntityLeaveWorldEvent event) {
         Entity entity = event.getEntity();
-        if (ForceLoader.isForceLoader(entity) && event.getWorld() instanceof ServerLevel level) {
-            ChunkPos pos = entity.chunkPosition();
-            level.setChunkForced(pos.x, pos.z, false);
+        if (ForceLoader.isForceLoader(entity) && event.getWorld() instanceof ServerLevel) {
+            ChunkPos pos = new ChunkPos(entity.blockPosition());
+            ((ServerLevel)event.getWorld()).setChunkForced(pos.x, pos.z, false);
         }
     }
 
     public void onEntityJoin(@NotNull EntityJoinWorldEvent event) {
         Entity entity = event.getEntity();
-        if (ForceLoader.isForceLoader(entity) && event.getWorld() instanceof ServerLevel level) {
-            ChunkPos pos = entity.chunkPosition();
-            level.setChunkForced(pos.x, pos.z, true);
+        if (ForceLoader.isForceLoader(entity) && event.getWorld() instanceof ServerLevel) {
+            ChunkPos pos = new ChunkPos(entity.blockPosition());
+            ((ServerLevel)event.getWorld()).setChunkForced(pos.x, pos.z, true);
         }
     }
 
@@ -63,7 +63,7 @@ public final class Pearload {
             Set<String> modIDs = new ObjectOpenHashSet<>();
             for (String forceLoader : CONFIG.getForceLoaders()) {
                 if (forceLoader.contains(":")) {
-                    registryNames.add(ResourceLocation.parse(forceLoader));
+                    registryNames.add(ResourceLocation.tryParse(forceLoader));
                 } else {
                     modIDs.add(forceLoader);
                 }
