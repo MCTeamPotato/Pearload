@@ -11,8 +11,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -30,8 +30,8 @@ public final class Pearload {
 
     public static final @Nullable IConfig CONFIG = FMLLoader.getLoadingModList().getModFileById("jsonate") == null ? null : new Config();
 
-    public Pearload(@NotNull FMLJavaModLoadingContext context) {
-        context.getModEventBus().addListener(this::setup);
+    public Pearload() {
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         MinecraftForge.EVENT_BUS.addListener(this::onEntityLeave);
         MinecraftForge.EVENT_BUS.addListener(this::onEntityJoin);
     }
@@ -41,17 +41,17 @@ public final class Pearload {
         return CONFIG.projectile();
     }
 
-    public void onEntityLeave(@NotNull EntityLeaveLevelEvent event) {
+    public void onEntityLeave(@NotNull EntityLeaveWorldEvent event) {
         Entity entity = event.getEntity();
-        if (ForceLoader.isForceLoader(entity) && event.getLevel() instanceof ServerLevel level) {
+        if (ForceLoader.isForceLoader(entity) && event.getWorld() instanceof ServerLevel level) {
             ChunkPos pos = entity.chunkPosition();
             level.setChunkForced(pos.x, pos.z, false);
         }
     }
 
-    public void onEntityJoin(@NotNull EntityJoinLevelEvent event) {
+    public void onEntityJoin(@NotNull EntityJoinWorldEvent event) {
         Entity entity = event.getEntity();
-        if (ForceLoader.isForceLoader(entity) && event.getLevel() instanceof ServerLevel level) {
+        if (ForceLoader.isForceLoader(entity) && event.getWorld() instanceof ServerLevel level) {
             ChunkPos pos = entity.chunkPosition();
             level.setChunkForced(pos.x, pos.z, true);
         }
@@ -68,7 +68,7 @@ public final class Pearload {
                     modIDs.add(forceLoader);
                 }
             }
-            for (Map.Entry<ResourceKey<EntityType<?>>, EntityType<?>> entry : ForgeRegistries.ENTITY_TYPES.getEntries()) {
+            for (Map.Entry<ResourceKey<EntityType<?>>, EntityType<?>> entry : ForgeRegistries.ENTITIES.getEntries()) {
                 ResourceLocation id = entry.getKey().location();
                 EntityType<?> type = entry.getValue();
                 if (registryNames.contains(id) || modIDs.contains(id.getNamespace())) {
