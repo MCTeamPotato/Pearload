@@ -14,18 +14,18 @@ public abstract class EntityMixin {
     @Inject(method = "setPosRaw", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ChunkPos;<init>(Lnet/minecraft/core/BlockPos;)V"))
     protected void beforeChunkUpdate(CallbackInfo ci) {
         Entity entity = (Entity) (Object) this;
-        if (entity.level() instanceof ServerLevel && ForceLoader.isForceLoader(entity)) {
+        if (entity.level instanceof ServerLevel && ForceLoader.isForceLoader(entity)) {
             ChunkPos pos = entity.chunkPosition();
-            ((ServerLevel) entity.level()).setChunkForced(pos.x, pos.z, false);
+            ((ServerLevel) entity.level).setChunkForced(pos.x, pos.z, false);
         }
     }
 
     @Inject(method = "setPosRaw", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ChunkPos;<init>(Lnet/minecraft/core/BlockPos;)V", shift = At.Shift.AFTER))
     protected void afterChunkUpdate(CallbackInfo ci) {
         Entity entity = (Entity) (Object) this;
-        if (entity.level() instanceof ServerLevel && ForceLoader.isForceLoader(entity)) {
+        if (entity.level instanceof ServerLevel && ForceLoader.isForceLoader(entity)) {
             ChunkPos pos = entity.chunkPosition();
-            ((ServerLevel) entity.level()).setChunkForced(pos.x, pos.z, true);
+            ((ServerLevel) entity.level).setChunkForced(pos.x, pos.z, true);
         }
     }
 }
