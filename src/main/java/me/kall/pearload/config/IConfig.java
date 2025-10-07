@@ -11,4 +11,8 @@ public interface IConfig {
     default boolean projectile() {
         return false;
     }
+
+    default boolean debug() {
+        return false;
+    }
 }
