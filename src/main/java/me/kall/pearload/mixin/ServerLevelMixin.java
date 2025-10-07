@@ -14,11 +14,15 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public abstract class ServerLevelMixin {
     @Inject(method = "updateChunkPos", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunk;removeEntity(Lnet/minecraft/world/entity/Entity;I)V"))
     private void beforeChunkUpdate(Entity entity, CallbackInfo ci) {
-        Pearload.handleEntityForceLoadChange(new ChunkPos(entity.xChunk, entity.zChunk), entity.getUUID(), entity, false);
+        if (Pearload.handleEntityForceLoadChange(new ChunkPos(entity.xChunk, entity.zChunk), entity.getUUID(), entity, false) && Pearload.debug()) {
+            System.out.println("ChunkForced (beforeChunkUpdate) (false): " + new ChunkPos(entity.xChunk, entity.zChunk));
+        }
     }
 
     @Inject(method = "updateChunkPos", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunk;addEntity(Lnet/minecraft/world/entity/Entity;)V"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void afterChunkUpdate(Entity entity, CallbackInfo ci, int chunkX, int y, int chunkZ) {
-        Pearload.handleEntityForceLoadChange(new ChunkPos(chunkX, chunkZ), entity.getUUID(), entity, true);
+        if (Pearload.handleEntityForceLoadChange(new ChunkPos(chunkX, chunkZ), entity.getUUID(), entity, true) && Pearload.debug()) {
+            System.out.println("ChunkForced (afterChunkUpdate) (true): " + new ChunkPos(chunkX, chunkZ));
+        }
     }
 }

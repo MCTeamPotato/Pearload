@@ -48,12 +48,12 @@ public final class Pearload {
 
     public void onEntityJoin(@NotNull EntityJoinWorldEvent event) {
         Entity entity = event.getEntity();
-        if (handleEntityForceLoadChange(entity.chunkPosition(), entity.getUUID(), entity, true) && debug()) System.out.println("ChunkForced (EntityJoinLevelEvent) (true): " + entity.chunkPosition());
+        if (handleEntityForceLoadChange(new ChunkPos(entity.blockPosition()), entity.getUUID(), entity, true) && debug()) System.out.println("ChunkForced (EntityJoinLevelEvent) (true): " + new ChunkPos(entity.blockPosition()));
     }
 
     public void onEntityLeave(@NotNull EntityLeaveWorldEvent event) {
         Entity entity = event.getEntity();
-        if (handleEntityForceLoadChange(entity.chunkPosition(), entity.getUUID(), entity, false) && debug()) System.out.println("ChunkForced (EntityLeaveLevelEvent) (false): " + entity.chunkPosition());
+        if (handleEntityForceLoadChange(new ChunkPos(entity.blockPosition()), entity.getUUID(), entity, false) && debug()) System.out.println("ChunkForced (EntityLeaveLevelEvent) (false): " + new ChunkPos(entity.blockPosition()));
     }
 
     public void setup(FMLCommonSetupEvent event) {
