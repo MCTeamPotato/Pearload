@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import me.kall.pearload.api.ForceLoader;
 import me.kall.pearload.config.Config;
 import me.kall.pearload.config.IConfig;
+import me.kall.pearload.data.ForceLoadReasons;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 @Mod(Pearload.MOD_ID)
 public final class Pearload {
@@ -41,20 +43,14 @@ public final class Pearload {
         return CONFIG.projectile();
     }
 
-    public void onEntityLeave(@NotNull EntityLeaveWorldEvent event) {
-        Entity entity = event.getEntity();
-        if (ForceLoader.isForceLoader(entity) && event.getWorld() instanceof ServerLevel level) {
-            ChunkPos pos = entity.chunkPosition();
-            level.setChunkForced(pos.x, pos.z, false);
-        }
-    }
-
     public void onEntityJoin(@NotNull EntityJoinWorldEvent event) {
         Entity entity = event.getEntity();
-        if (ForceLoader.isForceLoader(entity) && event.getWorld() instanceof ServerLevel level) {
-            ChunkPos pos = entity.chunkPosition();
-            level.setChunkForced(pos.x, pos.z, true);
-        }
+        handleEntityForceLoadChange(entity.chunkPosition(), entity.getUUID(), entity, true);
+    }
+
+    public void onEntityLeave(@NotNull EntityLeaveWorldEvent event) {
+        Entity entity = event.getEntity();
+        handleEntityForceLoadChange(entity.chunkPosition(), entity.getUUID(), entity, false);
     }
 
     public void setup(FMLCommonSetupEvent event) {
@@ -78,5 +74,18 @@ public final class Pearload {
         } else {
             ForceLoader.setAsForceLoader(EntityType.ENDER_PEARL);
         }
+    }
+
+    public static void handleEntityForceLoadChange(ChunkPos pos, UUID uuid, @NotNull Entity entity, boolean add) {
+        if (!(entity.level instanceof ServerLevel level)) return;
+        if (!ForceLoader.isForceLoader(entity)) return;
+
+        ResourceLocation dim = level.dimension().location();
+
+        level.getServer().execute(() -> {
+            ForceLoadReasons reasons = ForceLoadReasons.get(level);
+            boolean changed = add ? reasons.add(dim, pos.toLong(), uuid) : reasons.remove(dim, pos.toLong(), uuid);
+            if (changed) level.setChunkForced(pos.x, pos.z, add);
+        });
     }
 }
