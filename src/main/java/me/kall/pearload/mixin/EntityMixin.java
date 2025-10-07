@@ -12,12 +12,12 @@ public abstract class EntityMixin {
     @Inject(method = "setPosRaw", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ChunkPos;<init>(Lnet/minecraft/core/BlockPos;)V"))
     protected void beforeChunkUpdate(CallbackInfo ci) {
         Entity entity = (Entity) (Object) this;
-        Pearload.handleEntityForceLoadChange(entity.chunkPosition(), entity.getUUID(), entity, false);
+        if (Pearload.handleEntityForceLoadChange(entity.chunkPosition(), entity.getUUID(), entity, false) && Pearload.debug()) System.out.println("ChunkForced (beforeChunkUpdate) (false): " + entity.chunkPosition());
     }
 
     @Inject(method = "setPosRaw", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ChunkPos;<init>(Lnet/minecraft/core/BlockPos;)V", shift = At.Shift.AFTER))
     protected void afterChunkUpdate(CallbackInfo ci) {
         Entity entity = (Entity) (Object) this;
-        Pearload.handleEntityForceLoadChange(entity.chunkPosition(), entity.getUUID(), entity, true);
+        if (Pearload.handleEntityForceLoadChange(entity.chunkPosition(), entity.getUUID(), entity, true) && Pearload.debug()) System.out.println("ChunkForced (afterChunkUpdate) (true): " + entity.chunkPosition());
     }
 }
