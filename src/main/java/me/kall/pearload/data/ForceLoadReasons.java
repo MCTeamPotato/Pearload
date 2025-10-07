@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -48,7 +49,7 @@ public class ForceLoadReasons extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         ListTag dimensions = new ListTag();
 
         for (var dimEntry : data.object2ObjectEntrySet()) {
@@ -105,6 +106,6 @@ public class ForceLoadReasons extends SavedData {
 
 
     public static @NotNull ForceLoadReasons get(@NotNull ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(ForceLoadReasons::load, ForceLoadReasons::new, ID);
+        return level.getDataStorage().computeIfAbsent(new Factory<>(ForceLoadReasons::new, (tag, provider) -> load(tag)), ID);
     }
 }
