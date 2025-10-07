@@ -39,18 +39,21 @@ public final class Pearload {
     }
 
     public static boolean projectile() {
-        if (CONFIG == null) return false;
-        return CONFIG.projectile();
+        return CONFIG != null && CONFIG.projectile();
+    }
+
+    public static boolean debug() {
+        return CONFIG != null && CONFIG.debug();
     }
 
     public void onEntityJoin(@NotNull EntityJoinWorldEvent event) {
         Entity entity = event.getEntity();
-        handleEntityForceLoadChange(new ChunkPos(entity.blockPosition()), entity.getUUID(), entity, true);
+        if (handleEntityForceLoadChange(entity.chunkPosition(), entity.getUUID(), entity, true) && debug()) System.out.println("ChunkForced (EntityJoinLevelEvent) (true): " + entity.chunkPosition());
     }
 
     public void onEntityLeave(@NotNull EntityLeaveWorldEvent event) {
         Entity entity = event.getEntity();
-        handleEntityForceLoadChange(new ChunkPos(entity.blockPosition()), entity.getUUID(), entity, false);
+        if (handleEntityForceLoadChange(entity.chunkPosition(), entity.getUUID(), entity, false) && debug()) System.out.println("ChunkForced (EntityLeaveLevelEvent) (false): " + entity.chunkPosition());
     }
 
     public void setup(FMLCommonSetupEvent event) {
@@ -76,18 +79,31 @@ public final class Pearload {
         }
     }
 
-    public static void handleEntityForceLoadChange(ChunkPos pos, UUID uuid, @NotNull Entity entity, boolean add) {
-        if (!(entity.level instanceof ServerLevel)) return;
-        if (!ForceLoader.isForceLoader(entity)) return;
+    public static boolean handleEntityForceLoadChange(ChunkPos pos, UUID uuid, @NotNull Entity entity, boolean add) {
+        if (!(entity.level instanceof ServerLevel)) return false;
+        if (!ForceLoader.isForceLoader(entity)) return false;
 
         ServerLevel level = (ServerLevel) entity.level;
 
         ResourceLocation dim = level.dimension().location();
+        ForceLoadReasons reasons = ForceLoadReasons.get(level);
 
-        level.getServer().execute(() -> {
-            ForceLoadReasons reasons = ForceLoadReasons.get(level);
-            boolean changed = add ? reasons.add(dim, pos.toLong(), uuid) : reasons.remove(dim, pos.toLong(), uuid);
-            if (changed) level.setChunkForced(pos.x, pos.z, add);
-        });
+        boolean anyChanged = false;
+
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                int chunkX = pos.x + dx;
+                int chunkZ = pos.z + dz;
+                long chunkKey = ChunkPos.asLong(chunkX, chunkZ);
+
+                boolean changed = add ? reasons.add(dim, chunkKey, uuid) : reasons.remove(dim, chunkKey, uuid);
+                if (changed) {
+                    level.setChunkForced(chunkX, chunkZ, add);
+                    anyChanged = true;
+                }
+            }
+        }
+
+        return anyChanged;
     }
 }
