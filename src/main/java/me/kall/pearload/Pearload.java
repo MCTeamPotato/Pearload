@@ -77,7 +77,7 @@ public final class Pearload {
     }
 
     public static void handleEntityForceLoadChange(ChunkPos pos, UUID uuid, @NotNull Entity entity, boolean add) {
-        if (!(entity.level() instanceof ServerLevel level)) return;
+        if (!(entity.level instanceof ServerLevel level)) return;
         if (!ForceLoader.isForceLoader(entity)) return;
 
         ResourceLocation dim = level.dimension().location();
