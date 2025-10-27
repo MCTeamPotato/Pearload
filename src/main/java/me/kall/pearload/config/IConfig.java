@@ -15,4 +15,8 @@ public interface IConfig {
     default boolean debug() {
         return false;
     }
+
+    default boolean all() {
+        return false;
+    }
 }

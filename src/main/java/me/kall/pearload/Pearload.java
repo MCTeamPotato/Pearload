@@ -60,6 +60,10 @@ public final class Pearload {
 
     public void setup(FMLCommonSetupEvent event) {
         if (CONFIG != null) {
+            if (CONFIG.all()) {
+                ForgeRegistries.ENTITY_TYPES.forEach(ForceLoader::setAsForceLoader);
+                return;
+            }
             Set<ResourceLocation> registryNames = new ObjectOpenHashSet<>();
             Set<String> modIDs = new ObjectOpenHashSet<>();
             for (String forceLoader : CONFIG.getForceLoaders()) {
