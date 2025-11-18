@@ -1,6 +1,7 @@
 {
   "required": true,
   "package": "me.kall.pearload.mixin",
+  "plugin": "me.kall.pearload.mixin.MixinExtrasInit",
   "compatibilityLevel": "JAVA_8",
   "overwrites": {
     "conformVisibility": false
