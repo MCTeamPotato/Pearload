@@ -1,5 +1,6 @@
 package me.kall.pearload.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import me.kall.pearload.Pearload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -8,7 +9,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin {
@@ -19,8 +19,8 @@ public abstract class ServerLevelMixin {
         }
     }
 
-    @Inject(method = "updateChunkPos", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunk;addEntity(Lnet/minecraft/world/entity/Entity;)V"), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void afterChunkUpdate(Entity entity, CallbackInfo ci, int chunkX, int y, int chunkZ) {
+    @Inject(method = "updateChunkPos", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunk;addEntity(Lnet/minecraft/world/entity/Entity;)V"))
+    private void afterChunkUpdate(Entity entity, CallbackInfo ci, @Local(ordinal = 0) int chunkX, @Local(ordinal = 2) int chunkZ) {
         if (Pearload.handleEntityForceLoadChange(new ChunkPos(chunkX, chunkZ), entity.getUUID(), entity, true) && Pearload.debug()) {
             System.out.println("ChunkForced (afterChunkUpdate) (true): " + new ChunkPos(chunkX, chunkZ));
         }
