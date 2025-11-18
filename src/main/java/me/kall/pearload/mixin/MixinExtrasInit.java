@@ -1,7 +1,7 @@
 package me.kall.pearload.mixin;
 
+import com.google.common.collect.Lists;
 import com.llamalad7.mixinextras.MixinExtrasBootstrap;
-import org.apache.commons.compress.utils.Lists;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
